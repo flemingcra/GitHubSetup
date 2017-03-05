@@ -1,0 +1,59 @@
+---
+title    : "Parallel Rmd Setup"
+author   : "Craig Fleming"
+date     : '`r Sys.Date()`' 
+output   : html_document
+---
+
+```{r echo=T, eval=T, comment="", tidy=F, cache=F, results="asis", warning=F}
+```
+
+```{r echo=T, eval=T, comment="", tidy=F, cache=F, results="asis", warning=F}
+```
+
+```{r echo=F, eval=T, comment="", tidy=F, cache=F, results="asis", warning=F, fig.height= 12, fig.width=14}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+opts_knit$set(progress=FALSE, verbose=FALSE)
+source("~/Documents/$R Projects/$ ETF Relative Strength Model/$Shared_Functions/0. initialize V1.01.R")
+pkgs <- c("survival","Hmisc","ROI","ROI.plugin.quadprog", "ROI.plugin.glpk","ggvis","fGarch","DEoptim","plotly")
+invisible(lapply(pkgs, library, character = TRUE))
+rm(pkgs)
+```
+
+
+```{r echo=T, eval=T, comment="", tidy=F}
+results <-  foreach(i=1:10, .combine=data.frame) %do%  data.frame(feature=rnorm(10))
+
+class(results)
+```
+
+Define cluster - The registerDoParallel function is used to register the parallel backend with the foreach package.
+```{r echo=T, eval=T, comment="", tidy=F}
+require(doParallel) # I already have this loaded as part of the intitialization
+
+registerDoParallel(4)
+
+getDoParWorkers()  # 4
+```
+
+
+```{r echo=T, eval=T, comment="", tidy=F}
+results <- foreach(i=1:10, .combine=data.frame) %dopar% data.frame(feature=rnorm(10))
+
+class(results)
+```
+
+#####Unregister
+```{r echo=T, eval=T, comment="", tidy=F}
+unregister <- function() {
+  env <- foreach:::.foreachGlobals
+  rm(list=ls(name=env), pos=env)
+}
+
+unregister()
+
+getDoParWorkers()
+```
